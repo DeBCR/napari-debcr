@@ -1,39 +1,33 @@
 name: napari-debcr
-display_name: DeBCR Denoising/Deblurring/Deconvolution
+display_name: DeBCR Deblurring
 # use 'hidden' to remove plugin from napari hub search results
 visibility: public
 # see https://napari.org/stable/plugins/technical_references/manifest.html#fields for valid categories
 categories: ["Annotation", "Segmentation", "Acquisition"]
 contributions:
   commands:
-    - id: napari-debcr.get_reader
-      python_name: napari_debcr._reader:napari_get_reader
-      title: Open data with DeBCR Denoising/Deblurring/Deconvolution
+    - id: napari-debcr.read_npz
+      python_name: napari_debcr._reader:get_reader
+      title: Read multi-array ".npz" files with DeBCR Deblurring
     - id: napari-debcr.write_multiple
       python_name: napari_debcr._writer:write_multiple
-      title: Save multi-layer data with DeBCR Denoising/Deblurring/Deconvolution
+      title: Save multi-layer data with DeBCR Deblurring
     - id: napari-debcr.write_single_image
       python_name: napari_debcr._writer:write_single_image
-      title: Save image data with DeBCR Denoising/Deblurring/Deconvolution
+      title: Save image data with DeBCR Deblurring
     - id: napari-debcr.make_sample_data
       python_name: napari_debcr._sample_data:make_sample_data
-      title: Load sample data from DeBCR Denoising/Deblurring/Deconvolution
+      title: Load sample data from DeBCR Deblurring
     - id: napari-debcr.make_container_widget
       python_name: napari_debcr:ImageThreshold
       title: Make threshold Container widget
-    - id: napari-debcr.make_magic_widget
-      python_name: napari_debcr:threshold_magic_widget
-      title: Make threshold magic widget
-    - id: napari-debcr.make_function_widget
-      python_name: napari_debcr:threshold_autogenerate_widget
-      title: Make threshold function widget
-    - id: napari-debcr.make_qwidget
-      python_name: napari_debcr:ExampleQWidget
-      title: Make example QWidget
+    - id: napari-debcr.inference_qwidget
+      python_name: napari_debcr:InferenceQWidget
+      title: Make DeBCR inference QWidget
   readers:
-    - command: napari-debcr.get_reader
+    - command: napari-debcr.read_npz
       accepts_directories: false
-      filename_patterns: ['*.npy']
+      filename_patterns: ['*.npz']
   writers:
     - command: napari-debcr.write_multiple
       layer_types: ['image*','labels*']
@@ -43,15 +37,16 @@ contributions:
       filename_extensions: ['.npy']
   sample_data:
     - command: napari-debcr.make_sample_data
-      display_name: DeBCR Denoising/Deblurring/Deconvolution
+      display_name: DeBCR Sample Data
       key: unique_id.1
   widgets:
     - command: napari-debcr.make_container_widget
       display_name: Container Threshold
-    - command: napari-debcr.make_magic_widget
-      display_name: Magic Threshold
-    - command: napari-debcr.make_function_widget
-      autogenerate: true
-      display_name: Autogenerate Threshold
-    - command: napari-debcr.make_qwidget
-      display_name: Example QWidget
+    - command: napari-debcr.inference_qwidget
+      display_name: Inference
+
+#commands:
+#- id: napari-debcr.get_reader
+#  python_name: napari_debcr._reader:get_reader
+#  title: Open data with DeBCR Denoising/Deblurring/Deconvolution
+    
