@@ -1,7 +1,7 @@
 [project]
 name = "napari-debcr"
 dynamic = ["version"]
-description = "A plugin to use DeBCR for light microscopy Denoising/Deblurring/Deconvolution in napari "
+description = "A plugin to use DeBCR for microscopy images deblurring in Napari"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
@@ -29,6 +29,7 @@ dependencies = [
     "magicgui",
     "qtpy",
     "scikit-image",
+    "debcr[tf-cpu] @ git+https://github.com/DeBCR/DeBCR@develop"
 ]
 
 [project.optional-dependencies]
