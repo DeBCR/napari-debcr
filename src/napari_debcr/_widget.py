@@ -1,18 +1,18 @@
 import os
 import glob
 
-from magicgui.widgets import CheckBox, Container, create_widget
-from qtpy.QtWidgets import QHBoxLayout, QVBoxLayout, QPushButton, QComboBox, QTextEdit, QLabel, QFileDialog, QWidget
-from qtpy.QtCore import QTimer
+from qtpy.QtWidgets import (
+    QHBoxLayout, QVBoxLayout,
+    QTextEdit, QLabel,
+    QPushButton, QComboBox,
+    QFileDialog, QWidget
+)
 
 import napari
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import napari
-
-from napari.utils.notifications import show_info
-from skimage.util import img_as_float
 
 import debcr
     
@@ -82,6 +82,11 @@ class InferenceQWidget(QWidget):
         weights_layout.addLayout(weights_file_layout)
         ## END Layout for model weights
 
+        # Button to print model info
+        model_info_widget = QPushButton("Show model info")
+        model_info_widget.clicked.connect(self._on_model_info_click)
+        self.model_info_btn = model_info_widget
+        
         # Log box for messages for user
         log_widget = QTextEdit()
         log_widget.setReadOnly(True)
@@ -92,6 +97,7 @@ class InferenceQWidget(QWidget):
         self.setLayout(layout)
         layout.addLayout(data_layout)
         layout.addLayout(weights_layout)
+        layout.addWidget(model_info_widget)
         layout.addWidget(run_widget)
         layout.addWidget(log_widget)
                 
@@ -99,29 +105,25 @@ class InferenceQWidget(QWidget):
         self.current_weights_dir = None
     
     def _on_run_click(self):
-        print("napari has", len(self.viewer.layers), "layers")
-        print("selected layer is", len(self.layer_select.currentText()))
-        print("loaded model info is ", self.debcr.summary())
-
+        self._log_message("Model will be runned!")
+    
+    def _on_model_info_click(self):
+        self.debcr.summary(print_fn=self._log_message)
+    
     def _on_choose_dir_click(self):
         dir_path = QFileDialog.getExistingDirectory(self, "Select Weights Directory")
         
         if dir_path:
             self.current_weights_dir = os.path.abspath(dir_path)
-            #show_info(f'Selected path: {self.current_weights_dir}')
-            #QTimer.singleShot(500, lambda: show_info(f'Selected path: {self.current_weights_dir}'))
-            self._log_message(f'Selected weights directory path:\n{self.current_weights_dir}')
             self._update_weights_dropdown() # update dropdown with found weight files
+            self._log_message(f'Selected weights directory path:\n{self.current_weights_dir}')
      
     def _on_show_dir_click(self):
         
         if self.current_weights_dir:
-            #show_info(f'Selected weights dir path: {self.current_weights_dir}')
-            #QTimer.singleShot(500, lambda: show_info(f'Selected weights dir path: {self.current_weights_dir}'))
             self._log_message(f'Selected weights directory path:\n{self.current_weights_dir}')
         else:
-            #show_info('No weights directory selected.')
-            QTimer.singleShot(500, lambda: show_info('No weights directory selected.'))
+            self._log_message('No weights directory selected yet.')
     
     def _update_weights_dropdown(self):
         self.weights_select.clear()
@@ -142,23 +144,23 @@ class InferenceQWidget(QWidget):
     def _on_weights_load_click(self):
         
         if not self.current_weights_dir:
-            print("No weights directory selected.")
+            self._log_message('No weights directory selected yet.')
             return
         
         selected_file = self.weights_select.currentText()
 
         if selected_file == "No checkpoint files found" or not selected_file:
-            print("No valid file selected.")
+            self._log_message('No valid file selected.')
             return
 
         checkpoint_file_prefix = selected_file.replace(".index", "")
         checkpoint_prefix = str(f'{self.current_weights_dir}/{checkpoint_file_prefix}')
-        print(f"Loading weights from: {checkpoint_prefix}")
+        self._log_message(f'Loading weights from: {checkpoint_prefix}')
 
         self.debcr = debcr.model.load(self.current_weights_dir, checkpoint_file_prefix)
-        
-        print("Weights loaded successfully!")
 
+        self._log_message('Weights loaded successfully!')
+        
     def _log_message(self, message):
         self.log_box.append(f'\n{message}')
     
@@ -176,51 +178,3 @@ class InferenceQWidget(QWidget):
             self.layer_select.setCurrentText(current_layer)
         elif layer_names:
             self.layer_select.setCurrentIndex(0)
-
-# if we want even more control over our widget, we can use
-# magicgui `Container`
-class ImageThreshold(Container):
-    def __init__(self, viewer: "napari.viewer.Viewer"):
-        super().__init__()
-        self._viewer = viewer
-        # use create_widget to generate widgets from type annotations
-        self._image_layer_combo = create_widget(
-            label="Image", annotation="napari.layers.Image"
-        )
-        self._threshold_slider = create_widget(
-            label="Threshold", annotation=float, widget_type="FloatSlider"
-        )
-        self._threshold_slider.min = 0
-        self._threshold_slider.max = 1
-        # use magicgui widgets directly
-        self._invert_checkbox = CheckBox(text="Keep pixels below threshold")
-
-        # connect your own callbacks
-        self._threshold_slider.changed.connect(self._threshold_im)
-        self._invert_checkbox.changed.connect(self._threshold_im)
-
-        # append into/extend the container with your widgets
-        self.extend(
-            [
-                self._image_layer_combo,
-                self._threshold_slider,
-                self._invert_checkbox,
-            ]
-        )
-
-    def _threshold_im(self):
-        image_layer = self._image_layer_combo.value
-        if image_layer is None:
-            return
-
-        image = img_as_float(image_layer.data)
-        name = image_layer.name + "_thresholded"
-        threshold = self._threshold_slider.value
-        if self._invert_checkbox.value:
-            thresholded = image < threshold
-        else:
-            thresholded = image > threshold
-        if name in self._viewer.layers:
-            self._viewer.layers[name].data = thresholded
-        else:
-            self._viewer.add_labels(thresholded, name=name)
