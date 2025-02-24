@@ -18,9 +18,6 @@ contributions:
     - id: napari-debcr.make_sample_data
       python_name: napari_debcr._sample_data:make_sample_data
       title: Load sample data from DeBCR Deblurring
-    - id: napari-debcr.make_container_widget
-      python_name: napari_debcr:ImageThreshold
-      title: Make threshold Container widget
     - id: napari-debcr.inference_qwidget
       python_name: napari_debcr:InferenceQWidget
       title: Make DeBCR inference QWidget
@@ -40,13 +37,6 @@ contributions:
       display_name: DeBCR Sample Data
       key: unique_id.1
   widgets:
-    - command: napari-debcr.make_container_widget
-      display_name: Container Threshold
     - command: napari-debcr.inference_qwidget
       display_name: Inference
-
-#commands:
-#- id: napari-debcr.get_reader
-#  python_name: napari_debcr._reader:get_reader
-#  title: Open data with DeBCR Denoising/Deblurring/Deconvolution
     
