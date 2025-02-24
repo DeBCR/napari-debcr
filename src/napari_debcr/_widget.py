@@ -160,7 +160,7 @@ class InferenceQWidget(QWidget):
         print("Weights loaded successfully!")
 
     def _log_message(self, message):
-        self.log_box.append(f'\n{message})
+        self.log_box.append(f'\n{message}')
     
     def _update_layer_select(self):
         current_layer = self.layer_select.currentText()
