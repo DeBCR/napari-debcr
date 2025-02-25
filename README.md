@@ -3,7 +3,9 @@
 [![License MIT](https://img.shields.io/pypi/l/napari-debcr.svg?color=green)](https://github.com/DeBCR/napari-debcr/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/napari-debcr.svg?color=green)](https://pypi.org/project/napari-debcr)
 [![Python Version](https://img.shields.io/pypi/pyversions/napari-debcr.svg?color=green)](https://python.org)
+<!--
 [![tests](https://github.com/DeBCR/napari-debcr/workflows/tests/badge.svg)](https://github.com/DeBCR/napari-debcr/actions)
+-->
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-debcr)](https://napari-hub.org/plugins/napari-debcr)
 
 Deep learning-based deblurring (denoising/deconvolution) for light microscopy images. The plugin to use [DeBCR] in [napari].
@@ -32,10 +34,12 @@ This [napari] plugin was generated with [copier] using the [napari-plugin-templa
 ```
 -->
 
+<!--
 ## Contributing
 
 Contributions are very welcome. Tests can be run with [tox], please ensure
 the coverage at least stays the same before you submit a pull request.
+-->
 
 ## License
 
