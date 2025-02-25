@@ -1,11 +1,11 @@
 import numpy as np
 
 from napari_debcr._widget import (
-    InferenceQWidget
+    DeBCRQWidget
 )
 
 # capsys is a pytest fixture that captures stdout and stderr output streams
-def test_inference_q_widget(make_napari_viewer, capsys):
+def test_debcr_q_widget(make_napari_viewer, capsys):
     # make viewer and add an image layer using our fixture
     viewer = make_napari_viewer()
     viewer.add_image(np.random.random((100, 100)))

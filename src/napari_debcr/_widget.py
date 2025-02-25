@@ -8,6 +8,8 @@ from qtpy.QtWidgets import (
     QFileDialog, QWidget
 )
 
+from qtpy import QtCore
+
 import napari
 
 from typing import TYPE_CHECKING
@@ -16,7 +18,7 @@ if TYPE_CHECKING:
 
 import debcr
     
-class InferenceQWidget(QWidget):
+class DeBCRQWidget(QWidget):
     
     def __init__(self, viewer: "napari.viewer.Viewer"):
         super().__init__()
@@ -31,9 +33,12 @@ class InferenceQWidget(QWidget):
         self.debcr = debcr.model.load()
         
     def _init_layout(self):
+        
+        title_label = QLabel("Deblur microscopy images")
+        title_label.setAlignment(QtCore.Qt.AlignCenter)
 
         # Button to run prediction
-        run_widget = QPushButton("Click me!")
+        run_widget = QPushButton("Run prediction")
         run_widget.clicked.connect(self._on_run_click)
         self.run_btn = run_widget
 
@@ -95,6 +100,7 @@ class InferenceQWidget(QWidget):
         # General plugin layout
         layout = QVBoxLayout()
         self.setLayout(layout)
+        layout.addWidget(title_label)
         layout.addLayout(data_layout)
         layout.addLayout(weights_layout)
         layout.addWidget(model_info_widget)
@@ -103,9 +109,6 @@ class InferenceQWidget(QWidget):
                 
         # Store a weights dir path
         self.current_weights_dir = None
-    
-    def _on_run_click(self):
-        self._log_message("Model will be runned!")
     
     def _on_model_info_click(self):
         self.debcr.summary(print_fn=self._log_message)
@@ -178,3 +181,36 @@ class InferenceQWidget(QWidget):
             self.layer_select.setCurrentText(current_layer)
         elif layer_names:
             self.layer_select.setCurrentIndex(0)
+    
+    def _on_run_click(self):
+
+        input_name = self.layer_select.currentText()
+        
+        self._log_message(f'Running prediction on {input_name}')
+        self._toggle_run_btn(False)
+        
+        input_data = None
+        for layer in self.viewer.layers:
+            if isinstance(layer, napari.layers.Image) and layer.name == input_name:
+                input_data = layer.data
+
+        if input_data is None:
+            self._log_message('No data is loaded!')
+            return
+        
+        output_name = input_name + '.deblurred'
+        data_pred = debcr.model.predict(self.debcr, input_data)
+        
+        self.viewer.add_image(
+            data_pred, name=output_name)
+        
+        self._log_message(f'Prediction is finished: {output_name}')
+        self._toggle_run_btn(True)
+    
+    def _toggle_run_btn(self, enabled):
+        if enabled:
+            self.run_btn.setText("Run prediction")
+            self.run_btn.setEnabled(True)
+        else:
+            self.run_btn.setText("Running prediction...")
+            self.run_btn.setEnabled(False)

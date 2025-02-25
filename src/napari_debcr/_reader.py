@@ -24,7 +24,7 @@ def npz_file_reader(path: "PathOrPaths") -> List["LayerData"]:
 
     filename,_ = os.path.splitext( os.path.basename(path) )
     layerdata = [
-        (data[arrname], {"name": f'{arrname}_{filename}'}, 'image')
+        (data[arrname], {"name": f'{filename}.{arrname}'}, 'image')
         for arrname in data.files
     ]
     
