@@ -29,7 +29,7 @@ dependencies = [
     "magicgui",
     "qtpy",
     "scikit-image",
-    "debcr[tf-cpu] @ git+https://github.com/DeBCR/DeBCR@develop"
+    "debcr[tf-cpu] @ git+https://github.com/DeBCR/DeBCR"
 ]
 
 [project.optional-dependencies]
