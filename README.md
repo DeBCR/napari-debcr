@@ -8,7 +8,9 @@
 -->
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-debcr)](https://napari-hub.org/plugins/napari-debcr)
 
-Deep learning-based deblurring (denoising/deconvolution) for light microscopy images. The plugin to use [DeBCR] in [napari].
+[debcr] is a deep learning-based tool for image deblurring (denoising/deconvolution). It is primarily intended to be used for light microscopy data.
+
+This `debcr-napari` plugin is created to provide a simple graphical interface to use a lightweight CPU version of [debcr] for deblurred image predictions in [napari]. 
 
 ----------------------------------
 
@@ -60,5 +62,5 @@ If you encounter any problems, please [file an issue] along with a detailed desc
 
 [MIT]: http://opensource.org/licenses/MIT
 
-[DeBCR]: https://github.com/DeBCR/DeBCR
+[debcr]: https://github.com/DeBCR/DeBCR
 [file an issue]: https://github.com/DeBCR/napari-debcr/issues
