@@ -30,7 +30,7 @@ class DeBCRQWidget(QWidget):
         self.viewer.layers.events.moved.connect(
             lambda e: self._update_layer_select())
         self._init_layout()
-        self.debcr = debcr.model.load()
+        self.debcr = debcr.model.init()
         
     def _init_layout(self):
         
@@ -160,7 +160,7 @@ class DeBCRQWidget(QWidget):
         checkpoint_prefix = str(f'{self.current_weights_dir}/{checkpoint_file_prefix}')
         self._log_message(f'Loading weights from: {checkpoint_prefix}')
 
-        self.debcr = debcr.model.load(self.current_weights_dir, checkpoint_file_prefix)
+        self.debcr = debcr.model.init(self.current_weights_dir, checkpoint_file_prefix)
 
         self._log_message('Weights loaded successfully!')
         
