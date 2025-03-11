@@ -6,7 +6,7 @@ from qtpy.QtWidgets import (
     QGroupBox,
     QHBoxLayout, QVBoxLayout,
     QLabel, QLineEdit,
-    QPushButton, QComboBox,
+    QPushButton, QComboBox, QSpinBox,
     QFileDialog, QWidget
 )
 from qtpy.QtCore import QThread, Signal
@@ -44,7 +44,7 @@ class PredictionThread(QThread):
         
         self.log_signal.emit(f'Running prediction on {input_name}')
         
-        data_pred = debcr.model.predict(self.widget.debcr, input_data)
+        data_pred = debcr.model.predict(eval_model=self.widget.debcr, input_data=input_data, batch_size=self.widget.batch_spin.value())
         output_name = self.widget.layer_out.text()
         
         self.result_signal.emit(data_pred, output_name)
@@ -139,6 +139,17 @@ class DeBCRInferenceWidget(QWidget):
         weights_group.setLayout(weights_layout)
         ## END Groupbox to load weights
         layout.addWidget(weights_group)
+
+        # Layout to setup batch size
+        batch_layout = QHBoxLayout()
+        batch_layout.addWidget(QLabel("batch_size:"))
+        self.batch_spin = QSpinBox()
+        self.batch_spin.setRange(16, 128)
+        self.batch_spin.setSingleStep(16)
+        self.batch_spin.setValue(32) # default
+        batch_layout.addWidget(self.batch_spin)
+        # END Layout to setup batch size
+        layout.addLayout(batch_layout)
         
         ## Groupbox to setup output data
         data_out_group = QGroupBox("Output data")        
