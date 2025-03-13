@@ -39,7 +39,8 @@ class PredictionThread(QThread):
                 break
         
         if input_data is None:
-            self.log_signal.emit('No data is loaded!')
+            self.log_signal.emit('No input data is loaded!')
+            self.finished_signal.emit()
             return
         
         self.log_signal.emit(f'Running prediction on {input_name}')
@@ -58,13 +59,6 @@ class DeBCRInferenceWidget(QWidget):
         super().__init__()
         
         self.viewer = viewer
-        self.viewer.layers.events.inserted.connect(
-            lambda e: self._update_layer_select())
-        self.viewer.layers.events.removed.connect(
-            lambda e: self._update_layer_select())
-        self.viewer.layers.events.moved.connect(
-            lambda e: self._update_layer_select())
-        
         self.log_widget = log_widget
         self._init_layout()
         
@@ -96,8 +90,8 @@ class DeBCRInferenceWidget(QWidget):
         ## END Groupbox to setup input data
         layout.addWidget(data_in_group)
         
-        ## Groupbox to load weights
-        weights_group = QGroupBox("Load weights (trained model)")        
+        ## Groupbox to load model
+        weights_group = QGroupBox("Trained model")
         weights_layout = QVBoxLayout()
         
         ### Sublayout for weights directory
@@ -112,7 +106,7 @@ class DeBCRInferenceWidget(QWidget):
         
         ### Sublayout for weights file
         weights_file = QHBoxLayout()
-        weights_file.addWidget(QLabel("Select checkpoint file:"))
+        weights_file.addWidget(QLabel("Select weights file:"))
         
         # Drop-down to select weights file
         self.weights_select = QComboBox()
@@ -120,24 +114,29 @@ class DeBCRInferenceWidget(QWidget):
         ### END Sublayout for model weights file
         weights_layout.addLayout(weights_file)
         
-        ### Sublayout to show/load weights path
-        weights_btns = QHBoxLayout()
+        ### Sublayout to show model weights path
+        weights_show_btns = QHBoxLayout()
         
         # Button to show full weights path
-        self.show_dir_btn = QPushButton("Show model path")
-        self.show_dir_btn.clicked.connect(self._on_show_dir_click)
-        weights_btns.addWidget(self.show_dir_btn)
-        
-        # Button to load weights
+        self.show_dir_btn = QPushButton("Show selected path")
+        self.show_dir_btn.clicked.connect(self._on_show_sel_dir_click)
+        weights_show_btns.addWidget(self.show_dir_btn)
+
+        # Button to show full weights path
+        self.show_dir_btn = QPushButton("Show loaded path")
+        self.show_dir_btn.clicked.connect(self._on_show_load_dir_click)
+        weights_show_btns.addWidget(self.show_dir_btn)
+         
+        ### END Sublayout to show model weights path
+        weights_layout.addLayout(weights_show_btns)
+
+        # Button to load model
         self.load_model_button = QPushButton("Load model") 
         self.load_model_button.clicked.connect(self._on_load_model_click)
-        weights_btns.addWidget(self.load_model_button)
-        
-        ### END Sublayout for model weights file
-        weights_layout.addLayout(weights_btns)
+        weights_layout.addWidget(self.load_model_button)
         
         weights_group.setLayout(weights_layout)
-        ## END Groupbox to load weights
+        ## END Groupbox to load model
         layout.addWidget(weights_group)
 
         # Layout to setup batch size
@@ -169,7 +168,7 @@ class DeBCRInferenceWidget(QWidget):
         ## END Layout for output data
         
         data_out_group.setLayout(data_out_layout)
-        ## END Groupbox to setup input data
+        ## END Groupbox to setup output data
         layout.addWidget(data_out_group)
         
         # Widget to run prediction
@@ -180,40 +179,52 @@ class DeBCRInferenceWidget(QWidget):
         
         layout.addStretch()
         self.setLayout(layout)
+
+        for event in ["inserted", "removed", "moved"]:
+            getattr(self.viewer.layers.events, event).connect(lambda e: self._update_layer_select())
         
         # Store a weights dir path
-        self.current_weights_dir = None
+        self.sel_weights_dirpath = None
+        self.load_weights_prefix = None
 
     def _on_choose_dir_click(self):
         dir_path = QFileDialog.getExistingDirectory(self, "Select Weights Directory")
         
         if dir_path:
-            self.current_weights_dir = os.path.abspath(dir_path)
+            self.sel_weights_dirpath = os.path.abspath(dir_path)
+            #self.log_widget.add_log(f'Selected weights directory path:\n{self.sel_weights_dirpath}')
             self._update_weights_dropdown() # update dropdown with found weight files
-            self.log_widget.add_log(f'Selected weights directory path:\n{self.current_weights_dir}')
      
-    def _on_show_dir_click(self):
+    def _on_show_sel_dir_click(self):
         
-        if self.current_weights_dir:
-            self.log_widget.add_log(f'Selected trained model full path:\n{self.current_weights_dir}/{self.weights_select.currentText()}.*')
+        if self.sel_weights_dirpath:
+            self.log_widget.add_log(f'Selected weights path:\n{self.sel_weights_dirpath}/{self.weights_select.currentText()}.*')
         else:
             self.log_widget.add_log('No weights directory selected yet.')
-    
+
+    def _on_show_load_dir_click(self):
+        
+        if self.load_weights_prefix:
+            self.log_widget.add_log(f'Loaded weights path:\n{self.load_weights_prefix}.*')
+        else:
+            self.log_widget.add_log('No model weights loaded yet.')
+            
     def _update_weights_dropdown(self):
         self.weights_select.clear()
         
-        if not self.current_weights_dir:
+        if not self.sel_weights_dirpath:
             return
 
         # Find all .index files (checkpoint files)
-        weight_filepaths = sorted(glob.glob(f'{self.current_weights_dir}/*.index'))
+        weight_filepaths = sorted(glob.glob(f'{self.sel_weights_dirpath}/*.index'))
         
         if weight_filepaths:
             weight_filenames = [os.path.basename(filepath) for filepath in weight_filepaths]
             weight_names = [filename.replace(".index", "") for filename in weight_filenames]
             self.weights_select.addItems(weight_names)
+            self.log_widget.add_log('Found model weights!')
         else:
-            self.weights_select.addItem("No checkpoint files found.")
+            self.log_widget.add_log(f'No model weights found!\nExpected contents: ckpt-*.index, ckpt-*.data.\nCheck weights directory path...')
 
     def _update_text_field(self, text):
         if self.layer_out.text() == "":
@@ -221,23 +232,24 @@ class DeBCRInferenceWidget(QWidget):
     
     def _on_load_model_click(self):
         
-        if not self.current_weights_dir:
+        if not self.sel_weights_dirpath:
             self.log_widget.add_log('No weights directory selected yet.')
             return
         
         selected_file = self.weights_select.currentText()
 
-        if selected_file == "No checkpoint files found" or not selected_file:
-            self.log_widget.add_log('No valid file selected.')
+        if not selected_file:
+            self.log_widget.add_log(f'No model weight files (ckpt*.index, ckpt*.data) found!\nCheck weights directory path...')
             return
 
         checkpoint_file_prefix = selected_file.replace(".index", "")
-        checkpoint_prefix = str(f'{self.current_weights_dir}/{checkpoint_file_prefix}')
+        checkpoint_prefix = str(f'{self.sel_weights_dirpath}/{checkpoint_file_prefix}')
         self.log_widget.add_log(f'Loading weights from: {checkpoint_prefix}')
-
-        self.debcr = debcr.model.init(self.current_weights_dir, checkpoint_file_prefix)
-
-        self.log_widget.add_log('Weights loaded successfully!')
+        
+        self.debcr = debcr.model.init(self.sel_weights_dirpath, checkpoint_file_prefix)
+        self.load_weights_prefix = checkpoint_prefix
+        
+        self.log_widget.add_log(f'Weights loaded successfully:\n{self.load_weights_prefix}.*')
 
     def _update_layer_select(self):
         current_layer = self.layer_select.currentText()
@@ -257,7 +269,7 @@ class DeBCRInferenceWidget(QWidget):
     def _on_run_click(self):
 
         if self.debcr is None:
-            self.log_widget.add_log(f'No trained model (weights) loaded yet!')
+            self.log_widget.add_log(f'No model weights loaded yet!')
             return
         
         self._toggle_run_btn(False)
