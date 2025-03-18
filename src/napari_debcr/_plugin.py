@@ -2,6 +2,7 @@ import os
 import glob
 
 from ._inference_widget import DeBCRInferenceWidget
+from ._training_widget import DeBCRTrainingWidget
 from ._log_widget import DeBCRLogWidget
 
 from qtpy.QtWidgets import (
@@ -48,6 +49,10 @@ class DeBCRPlugin(QWidget):
         self.main_tab = QTabWidget()
 
         # Tab 1 : Inference widget
+        widget = DeBCRTrainingWidget(self.viewer, self.log_widget)
+        self.main_tab.addTab(widget, 'Train')
+        
+        # Tab 2 : Inference widget
         widget = DeBCRInferenceWidget(self.viewer, self.log_widget)
         self.main_tab.addTab(widget, 'Predict')
 
