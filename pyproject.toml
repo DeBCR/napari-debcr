@@ -4,7 +4,6 @@ dynamic = ["version"]
 description = "A plugin to use DeBCR for microscopy images deblurring in Napari"
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.9"
 keywords = [
     "image processing", "deep learning",
     "BCR", "waveletes", "BCR-Net", "m-rBCR", "s-rBCR",
@@ -13,7 +12,6 @@ keywords = [
     "fluorescent microscopy", "light microscopy"
 ]
 maintainers = [{ name = "Artsemi Yushkevich" }]
-urls = { homepage = "https://github.com/DeBCR/napari-debcr" }
 
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -35,8 +33,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-tf-cpu = [ "debcr[tf-cpu] @ git+https://github.com/DeBCR/DeBCR@develop" ]
-tf-gpu = [ "debcr[tf-gpu] @ git+https://github.com/DeBCR/DeBCR@develop" ]
+tf-cpu = [ "debcr[tf-cpu]@git+https://github.com/DeBCR/DeBCR@develop" ]
+tf-gpu = [ "debcr[tf-gpu]@git+https://github.com/DeBCR/DeBCR@develop" ]
 testing = [
     "tox",
     "pytest",  # https://docs.pytest.org/en/latest/contents.html
