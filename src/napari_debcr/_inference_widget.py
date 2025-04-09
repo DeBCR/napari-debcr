@@ -53,7 +53,7 @@ class PredictionThread(QThread):
         
         self.finished_signal.emit()  # Notify UI when done
 
-class DeBCRInferenceWidget(QWidget):
+class InferenceWidget(QWidget):
     
     def __init__(self, viewer: "napari.viewer.Viewer", log_widget):
         super().__init__()

@@ -74,7 +74,7 @@ class TrainingThread(QThread):
         
         self.finished_signal.emit()  # Notify UI when done
         
-class DeBCRTrainingWidget(QWidget):
+class TrainingWidget(QWidget):
     
     def __init__(self, viewer: "napari.viewer.Viewer", log_widget):
         super().__init__()
@@ -93,14 +93,14 @@ class DeBCRTrainingWidget(QWidget):
         layout = QVBoxLayout()
         
         # Widget: train input data
-        self.data_widgets["train.low"] = InputDataGroupBox(self.viewer, 'Train input')
+        self.data_widgets["train.low"] = InputDataGroupBox(self.viewer, 'Training input')
         layout.addWidget(self.data_widgets["train.low"])
 
         # Widget: train GT data
-        self.data_widgets["train.gt"] = InputDataGroupBox(self.viewer, 'Train target (GT)')
+        self.data_widgets["train.gt"] = InputDataGroupBox(self.viewer, 'Training target')
         layout.addWidget(self.data_widgets["train.gt"])
 
-        # Groupbox: trained model
+        # Widget: trained model
         weigths_widget = LoadWeightsGroupBox(self.viewer, "Model to train", self.log_widget, add_init_ckbox=True)
         layout.addWidget(weigths_widget)
         
@@ -109,14 +109,14 @@ class DeBCRTrainingWidget(QWidget):
         layout.addWidget(self.data_widgets["val.low"])
 
         # Widget: validation GT data
-        self.data_widgets["val.gt"] = InputDataGroupBox(self.viewer, 'Validation target (GT)')
+        self.data_widgets["val.gt"] = InputDataGroupBox(self.viewer, 'Validation target')
         layout.addWidget(self.data_widgets["val.gt"])
         
-        ## Groupbox to setup processing parameters
-        params_group = ModelConfigsGroupBox(self.viewer, 'Training parameters', self.log_widget)
+        # Widget: training parameters
+        params_group = ModelConfigsGroupBox(self.viewer, 'Training configurations', self.log_widget)
         layout.addWidget(params_group)
         
-        # Widget to run training
+        # Widget: run training
         run_widget = QPushButton("Run training")
         run_widget.clicked.connect(lambda: self._on_run_click(weigths_widget.debcr, params_group.config))
         self.run_btn = run_widget
@@ -128,7 +128,7 @@ class DeBCRTrainingWidget(QWidget):
         # Store a weights dir path
         self.sel_weights_dirpath = None
         self.load_weights_prefix = None
-    
+        
     def _on_run_click(self, model, config):
         
         self.debcr = model

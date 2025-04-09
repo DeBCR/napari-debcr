@@ -5,7 +5,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-class DeBCRLogWidget(QWidget):
+class LogWidget(QWidget):
     
     def __init__(self):
         super().__init__()
