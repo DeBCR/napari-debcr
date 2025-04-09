@@ -90,6 +90,28 @@ class ModelConfigsGroupBox(QGroupBox):
         # END Layout: learning rate
         #########
         layout.addLayout(lr_layout)
+
+        #########
+        # Layout: defaults / save
+        btn_layout = QHBoxLayout()
+        
+        ## Button: restore defaults
+        self.defaults_btn = QPushButton("Restore defaults")
+        self.defaults_btn.clicked.connect(self._on_defaults_click)
+        btn_layout.addWidget(self.defaults_btn)
+
+        ## Button: load from file
+        self.save_btn = QPushButton("Load From File")
+        self.save_btn.clicked.connect(self._on_load_config_click)
+        btn_layout.addWidget(self.save_btn)
+        
+        ## Button: save to file
+        self.save_btn = QPushButton("Save To File")
+        self.save_btn.clicked.connect(self._on_save_config_click)
+        btn_layout.addWidget(self.save_btn)
+        # END Layout: defaults / save
+        #########
+        layout.addLayout(btn_layout)
         
         #########
         # Layout: model output dirpath
@@ -112,7 +134,45 @@ class ModelConfigsGroupBox(QGroupBox):
         
         self.setLayout(layout)
         self.layout = layout
+
+    def _on_load_config_click(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load Configuration File From...",
+            "config.yaml",
+            "Text Files (*.yaml);;All Files (*)"
+        )
+        if path:
+            try:
+                self._update_config(debcr.config.load(path))
+                self.log_widget.add_log(f"Configuration loaded from: {path}")
+            except Exception as e:
+                self.log_widget.add_log(f"Failed to load configuration: {e}")
     
+    def _on_save_config_click(self):
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Configuration File As...",
+            "config.yaml",
+            "Text Files (*.yaml);;All Files (*)"
+        )
+        if path:
+            debcr.config.save(self.config, path)
+            self.log_widget.add_log(f"Configuration saved to: {path}")
+        
+    def _on_defaults_click(self):
+        self._update_config(debcr.config.load())
+        
+    def _update_config(self, config):
+        weights_path = self.config['weights_path']
+        self.config = config
+        self.config['weights_path'] = weights_path
+        
+        self.batch_spin.setValue(config['batch_size'])
+        self.steps_spin.setValue(config['NUM_STEPS'])
+        self.patience_spin.setValue(config['patience'])
+        self.lr_spin.setValue(config['learning_rate'])
+        
     def _on_text_changed(self, text):
         self.config['weights_path'] = text
         
