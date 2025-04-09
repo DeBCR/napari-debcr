@@ -4,23 +4,26 @@ dynamic = ["version"]
 description = "A plugin to use DeBCR for microscopy images deblurring in Napari"
 readme = "README.md"
 license = {file = "LICENSE"}
-authors = [
-  {name = "Artsemi Yushkevich"},
-  {email = "artsemi.yushkevich@mdc-berlin.de"},
+requires-python = ">=3.9"
+keywords = [
+    "image processing", "deep learning",
+    "BCR", "waveletes", "BCR-Net", "m-rBCR", "s-rBCR",
+    "denoising", "deblurring", "deconvolution",
+    "confocal microscopy", "widefield microscopy",
+    "fluorescent microscopy", "light microscopy"
 ]
+maintainers = [{ name = "Artsemi Yushkevich" }]
+urls = { homepage = "https://github.com/DeBCR/napari-debcr" }
+
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Framework :: napari",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
 requires-python = ">=3.9"
@@ -28,11 +31,12 @@ dependencies = [
     "numpy",
     "magicgui",
     "qtpy",
-    "scikit-image",
-    "debcr[tf-cpu] @ git+https://github.com/DeBCR/DeBCR"
+    "scikit-image"
 ]
 
 [project.optional-dependencies]
+tf-cpu = [ "debcr[tf-cpu] @ git+https://github.com/DeBCR/DeBCR@develop" ]
+tf-gpu = [ "debcr[tf-gpu] @ git+https://github.com/DeBCR/DeBCR@develop" ]
 testing = [
     "tox",
     "pytest",  # https://docs.pytest.org/en/latest/contents.html
