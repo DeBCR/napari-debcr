@@ -40,34 +40,48 @@ class TrainingThread(QThread):
                 input_data = layer.data
                 break
         
-        if input_data is None:
-            self.log_signal.emit(f'No layer \'{input_name}\' is found!')
-            self.finished_signal.emit()
-            return None
-        
         return input_data
+
+    def abort_training(self, message):
+        self.log_signal.emit(f'{message}\nTraining is aborted.')
+        self.finished_signal.emit()
         
     def run(self):
         
-        self.log_signal.emit('Default config is loaded!')
-        
-        data_train = {}
-        for subset in ["low", "gt"]:
-            input_name = self.widget.data_widgets["train." + subset].layer_select.currentText()
-            data_train[subset] = self.get_layer_by_name(input_name)
-            if data_train[subset] is None:
-                return
-        
-        data_val = {}
-        for subset in ["low", "gt"]:
-            input_name = self.widget.data_widgets["val." + subset].layer_select.currentText()
-            data_val[subset] = self.get_layer_by_name(input_name)        
-            if data_train[subset] is None:
-                return
+        data = {"train": {}, "val": {}}
+        for dataset in ["train", "val"]:
+            for subset in ["low", "gt"]:
+                key = f"{dataset}.{subset}"
+                input_name = self.widget.data_widgets[key].layer_select.currentText()
+                input_data = self.get_layer_by_name(input_name)
+                
+                if input_data is None:
+                    self.abort_training(message = f'Image stack not found: \'{input_name}\'')
+                
+                data[dataset][subset] = input_data
+
+        labels = {
+            "train": "training",
+            "val": "validation",
+            "low": "input",
+            "gt": "target"
+        }
+        expected_shape = data["train"]["low"].shape[-2:]
+        equal_subset_shapes = True
+        for dataset in ["train", "val"]:
+            for subset in ["low", "gt"]:
+                input_data = data[dataset][subset]
+                input_shape = input_data.shape[-2:]
+                input_label = labels[dataset] + " " + labels[subset]
+                
+                if input_shape[0] != input_shape[1]:
+                    self.abort_training(f'\'{input_label}\' images are not non-square: {input_shape}')
+                elif input_shape != expected_shape:
+                    self.abort_training(f'\'{input_label}\' shape {input_shape} and training input shape {expected_shape} are different!')
         
         self.log_signal.emit('Starting model training...')
         
-        model_trained = debcr.model.train(data_train, data_val, self.config, self.model)
+        model_trained = debcr.model.train(data["train"], data["val"], self.config, self.model)
         
         self.result_signal.emit(model_trained)
         self.log_signal.emit('Training is finished!')
