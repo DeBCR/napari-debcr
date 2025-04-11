@@ -40,16 +40,18 @@ class PreprocessThread(QThread):
         
         if input_data is None:
             self.log_signal.emit('No input data is loaded!')
+            self.log_signal.emit('Preprocessing is aborted.')
             self.finished_signal.emit()
             return
         
         self.log_signal.emit(f'Preprocessing {input_name}')
         
-        data_prep = debcr.data.prepare(input_data, patch_size = 32)
+        data_prep = debcr.data.prepare(input_data, patch_size = self.widget.patch_size)
         output_name = self.widget.layer_out.text()
-        print(output_name)
         self.result_signal.emit(data_prep, output_name)
-        self.log_signal.emit(f'Prediction is finished: {output_name}')
+        
+        self.log_signal.emit(f'New data shape: {data_prep.shape}')
+        self.log_signal.emit(f'Preprocessing is finished: {output_name}')
         
         self.finished_signal.emit()  # Notify UI when done
 
@@ -62,6 +64,7 @@ class PreprocessWidget(QWidget):
         self.log_widget = log_widget
 
         self.layer_select = None
+        self.patch_size = 128 # default
         self.debcr = None
         
         self._init_layout()
@@ -79,6 +82,20 @@ class PreprocessWidget(QWidget):
         # Groupbox: settings
         params_group = QGroupBox("Settings")
         params_layout = QVBoxLayout()
+
+        #########
+        # Layout: patch size
+        patch_layout = QHBoxLayout()
+        patch_layout.addWidget(QLabel("image patch size:"))
+        self.patch_spin = QSpinBox()
+        self.patch_spin.setRange(32, 256)
+        self.patch_spin.setSingleStep(16)
+        self.patch_spin.setValue(self.patch_size) # default
+        self.patch_spin.valueChanged.connect(self._update_patch_size)
+        patch_layout.addWidget(self.patch_spin)
+        # END Layout: patch size
+        #########
+        params_layout.addLayout(patch_layout)
         
         params_group.setLayout(params_layout)
         layout.addWidget(params_group)
@@ -89,7 +106,7 @@ class PreprocessWidget(QWidget):
         ## Layout to choose layer as output data
         data_out_layout = QHBoxLayout()
         
-        data_out_label = QLabel("to image layer:")
+        data_out_label = QLabel("to image stack:")
         data_out_layout.addWidget(data_out_label)
         
         # Text field to name the output image layer
@@ -112,7 +129,10 @@ class PreprocessWidget(QWidget):
         
         layout.addStretch()
         self.setLayout(layout)
-         
+
+    def _update_patch_size(self, value):
+        self.patch_size = value
+    
     def _update_output_label(self):
        self.layer_out.setText(f"{self.layer_select.currentText()}.preproc")
        
