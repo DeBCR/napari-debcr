@@ -104,7 +104,7 @@ class InferenceWidget(QWidget):
         ## Layout to choose layer as output data
         data_out_layout = QHBoxLayout()
         
-        data_out_label = QLabel("to image layer:")
+        data_out_label = QLabel("to image stack:")
         data_out_layout.addWidget(data_out_label)
         
         # Text field to name the output image layer
