@@ -27,7 +27,7 @@ class InputDataLayout:
         from_layer_layout = QHBoxLayout()
         
         ## Label
-        from_layer_label = QLabel("from layer:")
+        from_layer_label = QLabel("from image stack:")
         from_layer_layout.addWidget(from_layer_label)
         
         ## ComboBox: to select image layer
