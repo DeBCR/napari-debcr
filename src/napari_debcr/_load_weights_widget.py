@@ -4,7 +4,7 @@ import glob
 from qtpy.QtWidgets import (
     QVBoxLayout, QHBoxLayout,
     QLabel,
-    QPushButton, QCheckBox,
+    QPushButton, QCheckBox, QSpinBox,
     QComboBox, QGroupBox,
     QWidget,
     QFileDialog,
@@ -29,8 +29,10 @@ class LoadWeightsGroupBox(QGroupBox):
         self.ckpt_select = None
         self.weights_set_path = None
         self.weights_load_pref = None
+        
         self.debcr = None
-
+        self.input_size = 128
+        
         self.add_init_ckbox = add_init_ckbox
         
         self._init_layout()
@@ -39,9 +41,23 @@ class LoadWeightsGroupBox(QGroupBox):
         
         layout = QVBoxLayout()
 
+        #########
+        # Layout: model input size
+        input_size_layout = QHBoxLayout()
+        input_size_layout.addWidget(QLabel("model input size:"))
+        self.input_size_spin = QSpinBox()
+        self.input_size_spin.setRange(32, 256)
+        self.input_size_spin.setSingleStep(16)
+        self.input_size_spin.setValue(self.input_size) # default
+        self.input_size_spin.valueChanged.connect(self._update_input_size)
+        input_size_layout.addWidget(self.input_size_spin)
+        # END Layout: model input size
+        #########
+        layout.addLayout(input_size_layout)
+        
         if self.add_init_ckbox:
             # Button: init new model
-            self.init_ckbox = QCheckBox("Init new model")
+            self.init_ckbox = QCheckBox("initialize new model")
             self.init_ckbox.setChecked(True)
             self.init_ckbox.stateChanged.connect(self._toggle_group)
             layout.addWidget(self.init_ckbox)
@@ -87,7 +103,10 @@ class LoadWeightsGroupBox(QGroupBox):
 
         self.setLayout(layout)
         self.layout = layout
-    
+
+    def _update_input_size(self, value):
+        self.input_size = value
+        
     def _toggle_group(self):
         if self.add_init_ckbox:
             enable = not self.init_ckbox.isChecked()
@@ -128,8 +147,9 @@ class LoadWeightsGroupBox(QGroupBox):
     def _on_load_model_click(self):
 
         if self.add_init_ckbox and self.init_ckbox.isChecked():
-            self.debcr = debcr.model.init()
+            self.debcr = debcr.model.init(input_size = self.input_size)
             self.log_widget.add_log('Model initialized!')
+            print(f'Model summary:{self.debcr.summary()}')
             return
         
         if not self.weights_set_path:
@@ -145,7 +165,8 @@ class LoadWeightsGroupBox(QGroupBox):
         checkpoint_file_prefix = selected_file.replace(".index", "")
         checkpoint_prefix = str(f'{self.weights_set_path}/{checkpoint_file_prefix}')
         
-        self.debcr = debcr.model.init(self.weights_set_path, checkpoint_file_prefix)
+        self.debcr = debcr.model.init(weights_path=self.weights_set_path, input_size=self.input_size, ckpt_name=checkpoint_file_prefix)
         self.log_widget.add_log('Model loaded!')
+        print(f'Model summary:{self.debcr.summary()}')
 
         self.weights_load_pref = checkpoint_prefix
