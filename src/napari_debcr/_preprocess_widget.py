@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     import napari
 
 from ._input_data_widget import InputDataGroupBox
-from ._load_weights_widget import LoadWeightsGroupBox
 
 import debcr
 
