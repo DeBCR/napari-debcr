@@ -37,7 +37,7 @@ class ModelConfigsGroupBox(QGroupBox):
         #########
         # Layout: batch size
         batch_layout = QHBoxLayout()
-        batch_layout.addWidget(QLabel("batch load size:"))
+        batch_layout.addWidget(QLabel("images in batch:"))
         self.batch_spin = QSpinBox()
         self.batch_spin.setRange(16, 128)
         self.batch_spin.setSingleStep(16)
@@ -96,7 +96,7 @@ class ModelConfigsGroupBox(QGroupBox):
         btn_layout = QHBoxLayout()
         
         ## Button: restore defaults
-        self.defaults_btn = QPushButton("Restore defaults")
+        self.defaults_btn = QPushButton("Reset Defaults")
         self.defaults_btn.clicked.connect(self._on_defaults_click)
         btn_layout.addWidget(self.defaults_btn)
 
@@ -116,7 +116,7 @@ class ModelConfigsGroupBox(QGroupBox):
         #########
         # Layout: model output dirpath
         outdir_layout = QHBoxLayout()
-        outdir_layout.addWidget(QLabel("Model output:"))
+        outdir_layout.addWidget(QLabel("save model path:"))
         
         ## TextField: type path
         self.outdir_field = QLineEdit()
@@ -125,7 +125,7 @@ class ModelConfigsGroupBox(QGroupBox):
         outdir_layout.addWidget(self.outdir_field)
         
         ## Button: set path
-        self.set_outdir_btn = QPushButton("Choose directory")
+        self.set_outdir_btn = QPushButton("Choose")
         self.set_outdir_btn.clicked.connect(self._on_set_outdir_click)
         outdir_layout.addWidget(self.set_outdir_btn)
         # END Layout: model output dirpath
