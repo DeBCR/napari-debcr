@@ -1,10 +1,10 @@
 import os
 import glob
 
-from ._inference_widget import InferenceWidget
+from ._prediction_widget import PredictionWidget
 from ._training_widget import TrainingWidget
 from ._log_widget import LogWidget
-from ._preprocess_widget import PreprocessWidget 
+from ._data_transform_widget import DataTransformWidget 
 
 from qtpy.QtWidgets import (
     QVBoxLayout, QHBoxLayout,
@@ -59,17 +59,17 @@ class DeBCRPlugin(QWidget):
         # Tab widget for subwidgets 
         self.main_tab = QTabWidget()
 
-        ## Tab 1 : Preprocessing widget
-        widget = PreprocessWidget(self.viewer, self.log_widget)
-        self.main_tab.addTab(widget, 'Preprocess')
+        ## Tab 1 : Data transform widget
+        widget = DataTransformWidget(self.viewer, self.log_widget)
+        self.main_tab.addTab(widget, 'Transform data')
         
         ## Tab 2 : Training widget
         widget = TrainingWidget(self.viewer, self.log_widget)
-        self.main_tab.addTab(widget, 'Train')
+        self.main_tab.addTab(widget, 'Train model')
         
-        ## Tab 3 : Inference widget
-        widget = InferenceWidget(self.viewer, self.log_widget)
-        self.main_tab.addTab(widget, 'Predict')
+        ## Tab 3 : Prediction widget
+        widget = PredictionWidget(self.viewer, self.log_widget)
+        self.main_tab.addTab(widget, 'Use model')
         
         self.main_tab.setCurrentIndex(0)
         # END Tab widget for subwidgets
