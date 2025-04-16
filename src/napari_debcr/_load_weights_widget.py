@@ -3,7 +3,7 @@ import glob
 
 from qtpy.QtWidgets import (
     QVBoxLayout, QHBoxLayout,
-    QLabel,
+    QLabel, QLineEdit,
     QPushButton, QCheckBox, QSpinBox,
     QComboBox, QGroupBox,
     QWidget,
@@ -65,17 +65,18 @@ class LoadWeightsGroupBox(QGroupBox):
         #########
         # Layout: weights directory
         weigths_dir_layout = QHBoxLayout()
-        weigths_dir_layout.addWidget(QLabel("Weights folder:"))
-
-        ## Button: set weights dir
-        self.set_dir_btn = QPushButton("Choose dir")
+        weigths_dir_layout.addWidget(QLabel("weights folder:"))
+        
+        ## TextField: type weights dirpath
+        self.weights_dir_field = QLineEdit()
+        self.weights_dir_field.setText('./weights')
+        self.weights_dir_field.textChanged.connect(self._on_text_changed)
+        weigths_dir_layout.addWidget(self.weights_dir_field)
+        
+        ## Button: set weights dirpath
+        self.set_dir_btn = QPushButton("Choose")
         self.set_dir_btn.clicked.connect(self._on_set_dir_click)
         weigths_dir_layout.addWidget(self.set_dir_btn)
-        
-        ## Button: show weights dir
-        self.show_dir_btn = QPushButton("Show path")
-        self.show_dir_btn.clicked.connect(self._on_show_dir_click)
-        weigths_dir_layout.addWidget(self.show_dir_btn)
         # END Layout: weights directory
         #########
         layout.addLayout(weigths_dir_layout)
@@ -83,7 +84,7 @@ class LoadWeightsGroupBox(QGroupBox):
         #########
         # Layout: checkpoint
         ckpt_layout = QHBoxLayout()
-        ckpt_layout.addWidget(QLabel("Weights file:"))
+        ckpt_layout.addWidget(QLabel("weights file:"))
 
         ## Drop-down: select checkpoint
         self.ckpt_select = QComboBox()
@@ -97,7 +98,7 @@ class LoadWeightsGroupBox(QGroupBox):
             self._toggle_group()
         
         # Button: load model
-        self.load_model_btn = QPushButton("Load model") 
+        self.load_model_btn = QPushButton("(Re)load model") 
         self.load_model_btn.clicked.connect(self._on_load_model_click)
         layout.addWidget(self.load_model_btn)
 
@@ -111,11 +112,16 @@ class LoadWeightsGroupBox(QGroupBox):
         if self.add_init_ckbox:
             enable = not self.init_ckbox.isChecked()
             self.set_dir_btn.setEnabled(enable)
-            self.show_dir_btn.setEnabled(enable)
+            self.weights_dir_field.setEnabled(enable)
             self.ckpt_select.setEnabled(enable)
         
     def _on_set_dir_click(self):
         chosen_path = QFileDialog.getExistingDirectory(self, "Choose Weights Directory")
+        if chosen_path:
+            self.weights_set_path = os.path.abspath(chosen_path)
+            self._update_ckpt_dropdown() # update dropdown with found weight files
+
+    def _on_text_changed(self, chosen_path):
         if chosen_path:
             self.weights_set_path = os.path.abspath(chosen_path)
             self._update_ckpt_dropdown() # update dropdown with found weight files
@@ -136,13 +142,6 @@ class LoadWeightsGroupBox(QGroupBox):
             self.log_widget.add_log('Found model weights!')
         else:
             self.log_widget.add_log(f'No model weights found!\nExpected: ckpt-*.index, ckpt-*.data')
-
-    def _on_show_dir_click(self):
-        
-        if self.weights_set_path:
-            self.log_widget.add_log(f'Selected weights path:\n{self.weights_set_path}/{self.ckpt_select.currentText()}.*')
-        else:
-            self.log_widget.add_log('No weights directory selected yet.')
     
     def _on_load_model_click(self):
 
