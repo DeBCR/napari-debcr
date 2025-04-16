@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
 from ._input_data_widget import InputDataGroupBox
 from ._load_weights_widget import LoadWeightsGroupBox
+from ._output_data_widget import OutputDataGroupBox
 
 import debcr
 
@@ -53,7 +54,7 @@ class PredictionThread(QThread):
         
         self.finished_signal.emit()  # Notify UI when done
 
-class InferenceWidget(QWidget):
+class PredictionWidget(QWidget):
     
     def __init__(self, viewer: "napari.viewer.Viewer", log_widget):
         super().__init__()
@@ -62,6 +63,7 @@ class InferenceWidget(QWidget):
         self.log_widget = log_widget
 
         self.layer_select = None
+        self.layer_out = None
         self.debcr = None
         
         self._init_layout()
@@ -71,9 +73,8 @@ class InferenceWidget(QWidget):
         layout = QVBoxLayout()
          
         # Groupbox: input data
-        data_in_widget = InputDataGroupBox(self.viewer, "Input data")
+        data_in_widget = InputDataGroupBox(self.viewer, "Input")
         self.layer_select = data_in_widget.layer_select
-        self.layer_select.currentTextChanged.connect(self._update_output_label) # update output label
         layout.addWidget(data_in_widget)
 
         # Groupbox: trained model
@@ -81,7 +82,7 @@ class InferenceWidget(QWidget):
         layout.addWidget(weigths_widget)
         
         ## Groupbox: parameters
-        params_group = QGroupBox("Parameters")
+        params_group = QGroupBox("Settings")
         params_layout = QVBoxLayout()
         
         # Layout to setup batch size
@@ -98,26 +99,13 @@ class InferenceWidget(QWidget):
         params_group.setLayout(params_layout)
         layout.addWidget(params_group)
         
-        ## Groupbox: output data
-        data_out_group = QGroupBox("Output data")        
+        # Groupbox: output data
+        data_out_widget = OutputDataGroupBox(self.viewer, "Output")
+        self.layer_out = data_out_widget.layer_out
+        layout.addWidget(data_out_widget)
         
-        ## Layout to choose layer as output data
-        data_out_layout = QHBoxLayout()
-        
-        data_out_label = QLabel("to image stack:")
-        data_out_layout.addWidget(data_out_label)
-        
-        # Text field to name the output image layer
-        self.layer_out = QLineEdit()
-        data_out_layout.addWidget(self.layer_out)
-        
-        data_out_layout.setStretchFactor(data_out_label, 0)
-        data_out_layout.setStretchFactor(self.layer_out, 1)
-        ## END Layout for output data
-        
-        data_out_group.setLayout(data_out_layout)
-        ## END Groupbox: output data
-        layout.addWidget(data_out_group)
+        # update output label upon input label change 
+        self.layer_select.currentTextChanged.connect(lambda: data_out_widget._update_layer_out(f"{self.layer_select.currentText()}.pred"))
         
         # Widget to run prediction
         run_widget = QPushButton("Run prediction")
@@ -127,9 +115,6 @@ class InferenceWidget(QWidget):
         
         layout.addStretch()
         self.setLayout(layout)
-         
-    def _update_output_label(self):
-       self.layer_out.setText(f"{self.layer_select.currentText()}.predict")
        
     def _on_run_click(self, model):
 
