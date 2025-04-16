@@ -15,10 +15,11 @@ if TYPE_CHECKING:
     import napari
 
 from ._input_data_widget import InputDataGroupBox
+from ._output_data_widget import OutputDataGroupBox
 
 import debcr
 
-class PreprocessThread(QThread):
+class DataTransformThread(QThread):
     finished_signal = Signal()  # Signal to notify when finished
     log_signal = Signal(str) # Signal for log messages
     result_signal = Signal(object, str)  # Signal to pass prediction results (image data, name)
@@ -54,7 +55,7 @@ class PreprocessThread(QThread):
         
         self.finished_signal.emit()  # Notify UI when done
 
-class PreprocessWidget(QWidget):
+class DataTransformWidget(QWidget):
     
     def __init__(self, viewer: "napari.viewer.Viewer", log_widget):
         super().__init__()
@@ -63,6 +64,7 @@ class PreprocessWidget(QWidget):
         self.log_widget = log_widget
 
         self.layer_select = None
+        self.layer_out = None
         self.patch_size = 128 # default
         self.debcr = None
         
@@ -73,11 +75,18 @@ class PreprocessWidget(QWidget):
         layout = QVBoxLayout()
          
         # Groupbox: input data
-        data_in_widget = InputDataGroupBox(self.viewer, "Input data")
+        data_in_widget = InputDataGroupBox(self.viewer, "Input")
         self.layer_select = data_in_widget.layer_select
-        self.layer_select.currentTextChanged.connect(self._update_output_label) # update output label
         layout.addWidget(data_in_widget)
         
+        # Groupbox: output data
+        data_out_widget = OutputDataGroupBox(self.viewer, "Output")
+        self.layer_out = data_out_widget.layer_out
+        layout.addWidget(data_out_widget)
+        
+        # update output label upon input label change 
+        self.layer_select.currentTextChanged.connect(lambda: data_out_widget._update_layer_out(f"{self.layer_select.currentText()}.prep"))
+
         # Groupbox: settings
         params_group = QGroupBox("Settings")
         params_layout = QVBoxLayout()
@@ -85,7 +94,7 @@ class PreprocessWidget(QWidget):
         #########
         # Layout: patch size
         patch_layout = QHBoxLayout()
-        patch_layout.addWidget(QLabel("image patch size:"))
+        patch_layout.addWidget(QLabel("patch size (X/Y):"))
         self.patch_spin = QSpinBox()
         self.patch_spin.setRange(32, 256)
         self.patch_spin.setSingleStep(16)
@@ -99,29 +108,8 @@ class PreprocessWidget(QWidget):
         params_group.setLayout(params_layout)
         layout.addWidget(params_group)
         
-        ## Groupbox: output data
-        data_out_group = QGroupBox("Output data")        
-        
-        ## Layout to choose layer as output data
-        data_out_layout = QHBoxLayout()
-        
-        data_out_label = QLabel("to image stack:")
-        data_out_layout.addWidget(data_out_label)
-        
-        # Text field to name the output image layer
-        self.layer_out = QLineEdit()
-        data_out_layout.addWidget(self.layer_out)
-        
-        data_out_layout.setStretchFactor(data_out_label, 0)
-        data_out_layout.setStretchFactor(self.layer_out, 1)
-        ## END Layout for output data
-        
-        data_out_group.setLayout(data_out_layout)
-        ## END Groupbox: output data
-        layout.addWidget(data_out_group)
-        
-        # Widget to run prediction
-        run_widget = QPushButton("Preprocess data")
+        # Widget to run data transform
+        run_widget = QPushButton("Run transform")
         run_widget.clicked.connect(self._on_run_click)
         self.run_btn = run_widget
         layout.addWidget(run_widget)
@@ -131,10 +119,7 @@ class PreprocessWidget(QWidget):
 
     def _update_patch_size(self, value):
         self.patch_size = value
-    
-    def _update_output_label(self):
-       self.layer_out.setText(f"{self.layer_select.currentText()}.preproc")
-       
+           
     def _on_run_click(self):
         self._toggle_run_btn(False)
         # Run preprocessing in a background thread
@@ -149,9 +134,9 @@ class PreprocessWidget(QWidget):
     
     def _toggle_run_btn(self, enabled):
         if enabled:
-            self.run_btn.setText("Preprocess data")
+            self.run_btn.setText("Run transform")
             self.run_btn.setEnabled(True)
         else:
-            self.run_btn.setText("Preprocessing...")
+            self.run_btn.setText("Running...")
             self.run_btn.setEnabled(False)
             QApplication.processEvents()
