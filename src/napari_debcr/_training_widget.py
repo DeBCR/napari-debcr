@@ -127,7 +127,7 @@ class TrainingWidget(QWidget):
         layout.addWidget(self.data_widgets["val.gt"])
         
         # Widget: training parameters
-        params_group = ModelConfigsGroupBox(self.viewer, 'Training configurations', self.log_widget)
+        params_group = ModelConfigsGroupBox(self.viewer, 'Settings', self.log_widget)
         layout.addWidget(params_group)
         
         # Widget: run training
