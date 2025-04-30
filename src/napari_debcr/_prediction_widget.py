@@ -89,8 +89,8 @@ class PredictionWidget(QWidget):
         batch_layout = QHBoxLayout()
         batch_layout.addWidget(QLabel("batch load size:"))
         self.batch_spin = QSpinBox()
-        self.batch_spin.setRange(16, 128)
-        self.batch_spin.setSingleStep(16)
+        self.batch_spin.setRange(8, 128)
+        self.batch_spin.setSingleStep(8)
         self.batch_spin.setValue(32) # default
         batch_layout.addWidget(self.batch_spin)
         # END Layout to setup batch size

@@ -39,8 +39,8 @@ class ModelConfigsGroupBox(QGroupBox):
         batch_layout = QHBoxLayout()
         batch_layout.addWidget(QLabel("images in batch:"))
         self.batch_spin = QSpinBox()
-        self.batch_spin.setRange(16, 128)
-        self.batch_spin.setSingleStep(16)
+        self.batch_spin.setRange(8, 128)
+        self.batch_spin.setSingleStep(8)
         self.batch_spin.setValue(self.config['batch_size']) # default
         self.batch_spin.valueChanged.connect(lambda val: self._on_value_changed(val, 'batch_size'))
         batch_layout.addWidget(self.batch_spin)
