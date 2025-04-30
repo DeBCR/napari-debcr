@@ -122,8 +122,8 @@ class DataTransformWidget(QWidget):
            
     def _on_run_click(self):
         self._toggle_run_btn(False)
-        # Run preprocessing in a background thread
-        self.thread = PreprocessThread(self)
+        # Run data transform in a background thread
+        self.thread = DataTransformThread(self)
         self.thread.log_signal.connect(self.log_widget.add_log)
         self.thread.result_signal.connect(self._add_result_layer)
         self.thread.finished_signal.connect(lambda: self._toggle_run_btn(True))
