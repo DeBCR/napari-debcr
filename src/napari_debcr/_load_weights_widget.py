@@ -119,6 +119,7 @@ class LoadWeightsGroupBox(QGroupBox):
         chosen_path = QFileDialog.getExistingDirectory(self, "Choose Weights Directory")
         if chosen_path:
             self.weights_set_path = os.path.abspath(chosen_path)
+            self.weights_dir_field.setText(self.weights_set_path)
             self._update_ckpt_dropdown() # update dropdown with found weight files
 
     def _on_text_changed(self, chosen_path):
