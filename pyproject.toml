@@ -33,8 +33,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-tf-cpu = [ "debcr[tf-cpu]@git+https://github.com/DeBCR/DeBCR@develop" ]
-tf-gpu = [ "debcr[tf-gpu]@git+https://github.com/DeBCR/DeBCR@develop" ]
+tf-cpu = [ "debcr[tf-cpu]@git+https://github.com/DeBCR/DeBCR" ]
+tf-gpu = [ "debcr[tf-gpu]@git+https://github.com/DeBCR/DeBCR" ]
 testing = [
     "tox",
     "pytest",  # https://docs.pytest.org/en/latest/contents.html
