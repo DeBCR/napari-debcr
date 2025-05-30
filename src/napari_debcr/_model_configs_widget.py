@@ -92,6 +92,25 @@ class ModelConfigsGroupBox(QGroupBox):
         layout.addLayout(lr_layout)
 
         #########
+        # Layout: model output dirpath
+        outdir_layout = QHBoxLayout()
+        outdir_layout.addWidget(QLabel("save model path:"))
+        
+        ## TextField: type path
+        self.outdir_field = QLineEdit()
+        self.outdir_field.setText(self.config['weights_path'])
+        self.outdir_field.textChanged.connect(self._on_text_changed)
+        outdir_layout.addWidget(self.outdir_field)
+        
+        ## Button: set path
+        self.set_outdir_btn = QPushButton("Choose")
+        self.set_outdir_btn.clicked.connect(self._on_set_outdir_click)
+        outdir_layout.addWidget(self.set_outdir_btn)
+        # END Layout: model output dirpath
+        #########
+        layout.addLayout(outdir_layout)
+        
+        #########
         # Layout: defaults / save
         btn_layout = QHBoxLayout()
         
@@ -112,25 +131,6 @@ class ModelConfigsGroupBox(QGroupBox):
         # END Layout: defaults / save
         #########
         layout.addLayout(btn_layout)
-        
-        #########
-        # Layout: model output dirpath
-        outdir_layout = QHBoxLayout()
-        outdir_layout.addWidget(QLabel("save model path:"))
-        
-        ## TextField: type path
-        self.outdir_field = QLineEdit()
-        self.outdir_field.setText(self.config['weights_path'])
-        self.outdir_field.textChanged.connect(self._on_text_changed)
-        outdir_layout.addWidget(self.outdir_field)
-        
-        ## Button: set path
-        self.set_outdir_btn = QPushButton("Choose")
-        self.set_outdir_btn.clicked.connect(self._on_set_outdir_click)
-        outdir_layout.addWidget(self.set_outdir_btn)
-        # END Layout: model output dirpath
-        #########
-        layout.addLayout(outdir_layout)
         
         self.setLayout(layout)
         self.layout = layout
