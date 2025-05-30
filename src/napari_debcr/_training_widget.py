@@ -114,10 +114,6 @@ class TrainingWidget(QWidget):
         self.data_widgets["train.gt"] = InputDataGroupBox(self.viewer, 'Training target')
         layout.addWidget(self.data_widgets["train.gt"])
 
-        # Widget: trained model
-        weigths_widget = LoadWeightsGroupBox(self.viewer, "Model to train", self.log_widget, add_init_ckbox=True)
-        layout.addWidget(weigths_widget)
-        
         # Widget: validation input data
         self.data_widgets["val.low"] = InputDataGroupBox(self.viewer, 'Validation input')
         layout.addWidget(self.data_widgets["val.low"])
@@ -125,6 +121,10 @@ class TrainingWidget(QWidget):
         # Widget: validation GT data
         self.data_widgets["val.gt"] = InputDataGroupBox(self.viewer, 'Validation target')
         layout.addWidget(self.data_widgets["val.gt"])
+        
+        # Widget: trained model
+        weigths_widget = LoadWeightsGroupBox(self.viewer, "Model to train", self.log_widget, add_init_ckbox=True)
+        layout.addWidget(weigths_widget)
         
         # Widget: training parameters
         params_group = ModelConfigsGroupBox(self.viewer, 'Settings', self.log_widget)
