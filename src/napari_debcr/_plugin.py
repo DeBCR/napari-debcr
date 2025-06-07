@@ -21,17 +21,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import napari
 
-import tensorflow as tf
-gpus = tf.config.list_physical_devices('GPU')
-print(gpus)
-try:
-    for gpu in gpus:
-        tf.config.experimental.set_memory_growth(gpu, True)
-    print("Memory growth enabled.")
-except RuntimeError as e:
-        print("Error setting memory growth:", e)
-
-
 class DeBCRPlugin(QWidget):
     
     def __init__(self, viewer: "napari.viewer.Viewer"):
