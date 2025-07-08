@@ -8,81 +8,71 @@
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-debcr)](https://napari-hub.org/plugins/napari-debcr)
 -->
 
-[DeBCR] is a deep learning-based tool for light microscopy image deblurring (denoising/deconvolution).
+**DeBCR** is a Python-based framework for light microscopy data enhancement, including denoising and deconvolution.
 
-This `debcr-napari` plugin is created to provide a graphical interface for [DeBCR] in [napari]. 
+[`napari-debcr`](https://github.com/DeBCR/napari-debcr/) is add-on plugin, created to provide a graphical interface for [DeBCR](https://github.com/DeBCR/DeBCR) in [Napari viewer](https://github.com/napari/napari).
 
-----------------------------------
+This plugin was initialized with [copier](https://copier.readthedocs.io/en/stable/) using the [napari-plugin-template](https://github.com/napari/napari-plugin-template).
 
-This [napari] plugin was initialized with [copier] using the [napari-plugin-template].
+### License
+This is an open-source project and is licensed under [MIT license](https://github.com/DeBCR/napari-debcr/blob/main/LICENSE).
 
-For the installation/usage questions/issues:
-- related to this plugin use the [napari-debcr Issue Tracker](https://github.com/DeBCR/napari-debcr/issues);
-- related to the DeBCR toolkit use the [DeBCR Issue Tracker](https://github.com/DeBCR/DeBCR/issues).
-
-This page contains only information on the `napari-debcr` plugin installation. All the further details on the `DeBCR` like:
-- deep learning architecture;
-- links to the sample data and trained model weights;
-- GPU installation-related questions;
-and so on are provided on the toolkit Github page: [DeBCR].
+### Contact
+For any questions or bur-reports related to:
+- the [`napari-debcr`](https://github.com/DeBCR/napari-debcr/) plugin - use the [napari-debcr GitHub Issue Tracker](https://github.com/DeBCR/napari-debcr/issues);
+- the core [`debcr`](https://github.com/DeBCR/DeBCR) package - use the [DeBCR GitHub Issue Tracker](https://github.com/DeBCR/DeBCR/issues).
 
 ## Installation
 
-There are two installation versions for `DeBCR`:
-- a GPU version (**recommended**) -  allows full `DeBCR` functionality, including fast model training;
-- a CPU version (*limited*) - suitable only if you do not plan to use training, since doing it on CPUs might be very slow.
+As for the core package `debcr`, there are two hardware-based installation options for `napari-debcr`:
+- `napari-debcr[tf-gpu]` - for a GPU-based trainig and prediction (**recommended**);
+- `napari-debcr[tf-cpu]` - for a CPU-only execution (note: training on CPUs might be quite slow!).
 
-For a GPU version you need to have access to a GPU device with:
-- preferrably at least 16Gb of VRAM;
-- a CUDA Toolkit version compatible to your device (recommemded: [CUDA-11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive));
-- a cuDNN version compatible to the CUDA above (recommemded: v8.4.0 for CUDA-11.x from [cuDNN archive](https://developer.nvidia.com/rdp/cudnn-archive)).
+### GPU prerequisites
 
-#### 0. Create a package environment (optional)
+For a GPU version you need:
+- a GPU device with at least 12Gb of VRAM;
+- a compatible CUDA Toolkit (recommemded: [CUDA-11.7](https://developer.nvidia.com/cuda-11-7-0-download-archive));
+- a compatible cuDNN library (recommemded: v8.4.0 for CUDA-11.x from [cuDNN archive](https://developer.nvidia.com/rdp/cudnn-archive)).
 
-For a clean installation, we recommend using one of Python package environment managers, for example:
-- `micromamba`/`mamba` (see [mamba.readthedocs.io](https://mamba.readthedocs.io/)), used as example below
+For more info on GPU dependencies please check our [GPU-advice page on DeBCR GitHub](https://github.com/DeBCR/DeBCR/blob/main/docs/GPU-advice.md). 
+
+### Create a package environment (optional)
+
+For a clean isolated installation, we advice using one of Python package environment managers, for example:
+- `micromamba`/`mamba` (see [mamba.readthedocs.io](https://mamba.readthedocs.io/))
 - `conda-forge` (see [conda-forge.org](https://conda-forge.org/))
 
-We will use `micromamba` as an example package manager. Create an environment for `DeBCR` using
+Create an environment for `napari-debcr` using
 ```bash
-micromamba env create -n debcr python=3.9
+micromamba env create -n napari-debcr python=3.9 -y
 ```
 and activate it for further installation or usage by
 ```bash
-micromamba activate debcr
+micromamba activate napari-debcr
 ```
 
-#### 1. Install `napari`
+### Install `napari`
 
-Make sure you have [napari] installed. To install `napari` via [pip] use:
+Make sure you have [napari](https://github.com/napari/napari) installed. To install it via [pip](https://pypi.org/project/pip/) use:
 
 ```bash
-    pip install napari[all]
+pip install napari[all]
 ```
 
-#### 2. Install `napari-debcr`
+### Install napari-debcr
 
-<!--
-```bash
-    pip install napari-debcr
-```
--->
+Install one of the `napari-debcr` versions:
+- GPU (**recommended**; backend: TensorFlow-GPU-v2.11):
+  ```bash
+  pip install 'napari-debcr[tf-gpu]'
+  ```
+- CPU (*limited*; backend: TensorFlow-CPU-v2.11)
+  ```bash
+  pip install 'napari-debcr[tf-cpu]'
+  ```
 
-To install `napari-debcr` plugin for [DeBCR] you need to clone this repository and install the plugin locally.
-
-Clone this repository to the desired location and enter clone folder
-```bash
-cd /path/for/clone
-git clone https://github.com/DeBCR/napari-debcr
-cd ./DeBCR
-```
-
-and install one of the `napari-debcr` versions as
-
-| Target hardware  | Backend         | Command  |
-| :--------------- | :-------------- | :------- | 
-| GPU (**recommended**) | TensorFlow-GPU-2.11 | <pre> pip install -e .[tf-gpu] </pre> |
-| CPU (*limited*) | TensorFlow-CPU-2.11 | <pre> pip install -e .[tf-cpu] </pre> |
+### Test GPU visibility
 
 For a GPU version installation, it is recommended to check if your GPU device is recognised by **TensorFlow** using
 ```bash
@@ -94,33 +84,19 @@ which for a single GPU device should produce a similar output as below:
 [PhysicalDevice(name='/physical_device:GPU:0', device_type='GPU')]
 ```
 
-If your GPU device list is empty, please check our tips from [DeBCR] repository on [GPU-advice page](https://github.com/DeBCR/DeBCR/docs/GPU-advice.md).
+If your GPU device list is empty, please check our [GPU-advice page on DeBCR GitHub](https://github.com/DeBCR/DeBCR/blob/main/docs/GPU-advice.md). 
 
-<!--
-## Contributing
+## Usage
 
-Contributions are very welcome. Tests can be run with [tox], please ensure
-the coverage at least stays the same before you submit a pull request.
--->
+To start using `napari-debcr`,
+1. activate `napari-debcr` environment, if was inactive, by
+```bash
+micromamba activate napari-debcr
+```
+2. start Napari by typing
+```bash
+napari
+```
+3. in Napari window, open `napari-debcr` plugin by clicking in the main menu
 
-## License
-
-Distributed under the terms of the [MIT] license,
-"napari-debcr" is free and open source software
-
-## Issues
-
-If you encounter any problems, please [file an issue] along with a detailed description.
-
-[@napari]: https://github.com/napari
-[napari]: https://github.com/napari/napari
-[napari-plugin-template]: https://github.com/napari/napari-plugin-template
-
-[copier]: https://copier.readthedocs.io/en/stable/
-[tox]: https://tox.readthedocs.io/en/latest/
-[pip]: https://pypi.org/project/pip/
-
-[MIT]: http://opensource.org/licenses/MIT
-
-[DeBCR]: https://github.com/DeBCR/DeBCR
-[file an issue]: https://github.com/DeBCR/napari-debcr/issues
+`Plugins` &rarr; `DeBCR (DeBCR)`
