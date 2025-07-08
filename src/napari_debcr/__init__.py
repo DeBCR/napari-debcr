@@ -1,4 +1,6 @@
-__version__ = "0.0.1"
+from importlib.metadata import version
+
+__version__ = version("napari-debcr")
 
 from ._reader import get_reader
 from ._writer import npz_file_writer

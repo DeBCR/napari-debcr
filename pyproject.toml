@@ -1,30 +1,44 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+#requires = ["setuptools>=42.0.0", "wheel"]
+#build-backend = "setuptools.build_meta"
+
 [project]
 name = "napari-debcr"
-dynamic = ["version"]
-description = "A plugin to use DeBCR for microscopy images deblurring in Napari"
+version = "0.1.0"
+#dynamic = ["version"]
+description = "A Napari plugin to use DeBCR framework for light microscopy data enhancement via deep learning"
 readme = "README.md"
-license = {file = "LICENSE"}
+license = "MIT"
+requires-python = ">=3.9,<3.12"
 keywords = [
-    "image processing", "deep learning",
-    "BCR", "waveletes", "BCR-Net", "m-rBCR", "s-rBCR",
+    "image processing", "image restoration", "image enhancement", "deep learning",
+    "BCR", "BCR-Net", "m-rBCR",
     "denoising", "deblurring", "deconvolution",
     "confocal microscopy", "widefield microscopy",
-    "fluorescent microscopy", "light microscopy"
+    "fluorescence microscopy", "light microscopy"
+]
+authors = [
+{ name="Artsemi Yushkevich" },
+{ name="Rui Li" },
+{ name="Mikhail Kudryashev" },
+{ name="Artur Yakimovich" }
 ]
 maintainers = [{ name = "Artsemi Yushkevich" }]
+urls = { homepage = "https://github.com/DeBCR/napari-debcr/" }
 
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
-    "Framework :: napari",
-    "Intended Audience :: Developers",
-    "Operating System :: OS Independent",
+    "Environment :: GPU :: NVIDIA CUDA :: 11.7",
+    "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.9",
-    "Topic :: Scientific/Engineering :: Image Processing",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Image Processing"
 ]
-requires-python = ">=3.9"
+
 dependencies = [
     "numpy",
     "qtpy",
@@ -32,8 +46,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-tf-cpu = [ "debcr[tf-cpu]@git+https://github.com/DeBCR/DeBCR" ]
-tf-gpu = [ "debcr[tf-gpu]@git+https://github.com/DeBCR/DeBCR" ]
+tf-cpu = [ "debcr[tf-cpu]" ]
+tf-gpu = [ "debcr[tf-gpu]" ]
 testing = [
     "tox",
     "pytest",  # https://docs.pytest.org/en/latest/contents.html
@@ -46,28 +60,27 @@ testing = [
 [project.entry-points."napari.manifest"]
 napari-debcr = "napari_debcr:napari.yaml"
 
-[project.urls]
-"Bug Tracker" = "https://github.com/DeBCR/napari-debcr/issues"
-"Documentation" = "https://github.com/DeBCR/napari-debcr#README.md"
-"Source Code" = "https://github.com/DeBCR/napari-debcr"
-"User Support" = "https://github.com/DeBCR/napari-debcr/issues"
+[tool.poetry]
+packages = [
+    { include = "napari_debcr", from = "src" },
+]
 
-[build-system]
-requires = ["setuptools>=42.0.0", "wheel"]
-build-backend = "setuptools.build_meta"
+include = [
+    { path = "src/napari_debcr/napari.yaml", format = "sdist" },
+    { path = "src/napari_debcr/napari.yaml", format = "wheel" },
+]
 
-[tool.setuptools]
-include-package-data = true
+#[tool.setuptools]
+#include-package-data = true
 
-[tool.setuptools.packages.find]
-where = ["src"]
+#[tool.setuptools.packages.find]
+#where = ["src"]
 
-[tool.setuptools.package-data]
-"*" = ["*.yaml"]
+#[tool.setuptools.package-data]
+#"*" = ["*.yaml"]
 
-
-[tool.setuptools.dynamic]
-version = {attr = "napari_debcr.__init__.__version__"}
+#[tool.setuptools.dynamic]
+#version = {attr = "napari_debcr.__init__.__version__"}
 
 [tool.black]
 line-length = 79
